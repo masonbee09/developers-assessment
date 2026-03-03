@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
@@ -111,3 +112,39 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+
+class WorkLog(SQLModel, table=True):
+    __tablename__ = "worklog"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", index=True)
+    remittance_id: uuid.UUID | None = Field(
+        default=None, foreign_key="remittance.id", index=True
+    )
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+
+class TimeSegment(SQLModel, table=True):
+    __tablename__ = "time_segment"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    worklog_id: uuid.UUID = Field(foreign_key="worklog.id", index=True)
+    hours: float = Field()
+    rate: float = Field()
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+
+class Remittance(SQLModel, table=True):
+    __tablename__ = "remittance"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", index=True)
+    amount: float = Field()
+    status: str = Field(index=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+
+class Adjustment(SQLModel, table=True):
+    __tablename__ = "adjustment"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    worklog_id: uuid.UUID = Field(foreign_key="worklog.id", index=True)
+    amount: float = Field()
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)

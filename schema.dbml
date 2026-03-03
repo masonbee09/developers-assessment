@@ -1,0 +1,45 @@
+Table user {
+  id uuid [pk]
+  email varchar(255) [unique, not null]
+  is_active boolean [not null]
+  is_superuser boolean [not null]
+  full_name varchar(255)
+  hashed_password varchar [not null]
+}
+
+Table item {
+  id uuid [pk]
+  owner_id uuid [ref: > user.id, not null]
+  title varchar(255) [not null]
+  description varchar(255)
+}
+
+Table remittance {
+  id uuid [pk]
+  user_id uuid [ref: > user.id, not null]
+  amount float [not null]
+  status varchar [not null]
+  created_at datetime [not null]
+}
+
+Table worklog {
+  id uuid [pk]
+  user_id uuid [ref: > user.id, not null]
+  remittance_id uuid [ref: > remittance.id]
+  created_at datetime [not null]
+}
+
+Table time_segment {
+  id uuid [pk]
+  worklog_id uuid [ref: > worklog.id, not null]
+  hours float [not null]
+  rate float [not null]
+  created_at datetime [not null]
+}
+
+Table adjustment {
+  id uuid [pk]
+  worklog_id uuid [ref: > worklog.id, not null]
+  amount float [not null]
+  created_at datetime [not null]
+}
